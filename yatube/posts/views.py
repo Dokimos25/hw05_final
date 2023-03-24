@@ -132,6 +132,7 @@ def post_edit(request, post_id):
     context = {'form': form, 'post': post, 'is_edit': True}
     return render(request, template, context)
 
+
 @login_required
 def follow_index(request):
     posts = Post.objects.filter(
