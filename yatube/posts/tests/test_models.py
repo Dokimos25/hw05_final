@@ -62,7 +62,7 @@ class GroupModelTest(TestCase):
         """Проверка verbose_name у group."""
         field_verboses = {
             'title': 'Заголовок',
-            'slug': 'ЧПУ',
+            'slug': 'Проверка',
             'description': 'Описание',
         }
         for value, expected in field_verboses.items():
