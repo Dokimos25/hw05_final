@@ -123,7 +123,8 @@ class PostFormTests(TestCase):
     #         image=uploaded,
     #     )
     #     response = self.authorized_user.get(
-    #         reverse('posts:post', kwargs={'username': self.post_author.username,
+    #         reverse('posts:post',
+    #         kwargs={'username': self.post_author.username,
     #         'post_id': post.id})
     #     )
     #     self.assertEqual(response.status_code, HTTPStatus.OK)
@@ -222,17 +223,24 @@ class PostFormTests(TestCase):
             follow=True
         )
         self.assertEqual(response.status_code, HTTPStatus.OK)
-        # По поводу кавычек текста ошибки ниже: тест принимается только с такими
+        # По поводу кавычек текста ошибки ниже:
+        # тест принимается только с такими
         # (скопировала с отчёта об ошибки теста)
         # - снаружи двойные, внутри одинарные, иначе ошибка проверки теста.
         self.assertFormError(response, 'form', 'image',
                              "Формат файлов 'txt' не поддерживается. "
-                             "Поддерживаемые форматы файлов: 'bmp, dib, gif, tif, tiff, "
-                             "jfif, jpe, jpg, jpeg, pbm, pgm, ppm, pnm, png, apng, blp, "
-                             "bufr, cur, pcx, dcx, dds, ps, eps, fit, fits, fli, flc, ftc, "
-                             "ftu, gbr, grib, h5, hdf, jp2, j2k, jpc, jpf, jpx, j2c, icns, "
-                             "ico, im, iim, mpg, mpeg, mpo, msp, palm, pcd, pdf, pxr, psd, "
-                             "bw, rgb, rgba, sgi, ras, tga, icb, vda, vst, webp, wmf, "
+                             "Поддерживаемые форматы файлов: "
+                             "'bmp, dib, gif, tif, tiff, "
+                             "jfif, jpe, jpg, jpeg, pbm, pgm, "
+                             "ppm, pnm, png, apng, blp, "
+                             "bufr, cur, pcx, dcx, dds, ps, "
+                             "eps, fit, fits, fli, flc, ftc, "
+                             "ftu, gbr, grib, h5, hdf, jp2, "
+                             "j2k, jpc, jpf, jpx, j2c, icns, "
+                             "ico, im, iim, mpg, mpeg, mpo, "
+                             "msp, palm, pcd, pdf, pxr, psd, "
+                             "bw, rgb, rgba, sgi, ras, tga, "
+                             "icb, vda, vst, webp, wmf, "
                              "emf, xbm, xpm'."
                              )
         self.assertEqual(Post.objects.count(), posts_count)
