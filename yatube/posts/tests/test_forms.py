@@ -123,7 +123,8 @@ class PostFormTests(TestCase):
     #         image=uploaded,
     #     )
     #     response = self.authorized_user.get(
-    #         reverse('posts:post', kwargs={'username': self.post_author.username, 'post_id': post.id})
+    #         reverse('posts:post', kwargs={'username': self.post_author.username,
+    #         'post_id': post.id})
     #     )
     #     self.assertEqual(response.status_code, HTTPStatus.OK)
     #     self.assertContains(response, post.text)
@@ -131,7 +132,8 @@ class PostFormTests(TestCase):
     #     self.assertContains(response, self.group.title)
     #     self.assertContains(response, 'posts/small.gif')
     # ----------------------------------------------------------------
-    # Тест проверки полей не работает, не разобралась что писать в urls.py, либо ошибка в самом тесте.
+    # Тест проверки полей не работает, не разобралась что писать в urls.py,
+    # либо ошибка в самом тесте.
     # ----------------------------------------------------------------
 
     def test_nonauthorized_user_create_comment(self):
@@ -197,11 +199,11 @@ class PostFormTests(TestCase):
         """Проверка отправки неверного формата изображения"""
         posts_count = Post.objects.count()
         invalid_image = (
-            b'\x47\x49\x46\x38\x39\x61\x02\x00'  
-            b'\x01\x00\x80\x00\x00\x00\x00\x00'  
-            b'\xFF\xFF\xFF\x21\xF9\x04\x00\x00'  
-            b'\x00\x00\x00\x2C\x00\x00\x00\x00'  
-            b'\x02\x00\x01\x00\x00\x02\x02\x0C'  
+            b'\x47\x49\x46\x38\x39\x61\x02\x00'
+            b'\x01\x00\x80\x00\x00\x00\x00\x00'
+            b'\xFF\xFF\xFF\x21\xF9\x04\x00\x00'
+            b'\x00\x00\x00\x2C\x00\x00\x00\x00'
+            b'\x02\x00\x01\x00\x00\x02\x02\x0C'
             b'\x0A\x00\x3B'
         )
         uploaded = SimpleUploadedFile(
@@ -220,16 +222,18 @@ class PostFormTests(TestCase):
             follow=True
         )
         self.assertEqual(response.status_code, HTTPStatus.OK)
-        # По поводу кавычек текста ошибки ниже: тест принимается только с такими (скопировала с отчёта об ошибки теста)
+        # По поводу кавычек текста ошибки ниже: тест принимается только с такими
+        # (скопировала с отчёта об ошибки теста)
         # - снаружи двойные, внутри одинарные, иначе ошибка проверки теста.
-        self.assertFormError(response, 'form', 'image', "Формат файлов 'txt' не поддерживается. "
-                                                        "Поддерживаемые форматы файлов: 'bmp, dib, gif, tif, tiff, "
-                                                        "jfif, jpe, jpg, jpeg, pbm, pgm, ppm, pnm, png, apng, blp, "
-                                                        "bufr, cur, pcx, dcx, dds, ps, eps, fit, fits, fli, flc, ftc, "
-                                                        "ftu, gbr, grib, h5, hdf, jp2, j2k, jpc, jpf, jpx, j2c, icns, "
-                                                        "ico, im, iim, mpg, mpeg, mpo, msp, palm, pcd, pdf, pxr, psd, "
-                                                        "bw, rgb, rgba, sgi, ras, tga, icb, vda, vst, webp, wmf, "
-                                                        "emf, xbm, xpm'."
+        self.assertFormError(response, 'form', 'image',
+                             "Формат файлов 'txt' не поддерживается. "
+                             "Поддерживаемые форматы файлов: 'bmp, dib, gif, tif, tiff, "
+                             "jfif, jpe, jpg, jpeg, pbm, pgm, ppm, pnm, png, apng, blp, "
+                             "bufr, cur, pcx, dcx, dds, ps, eps, fit, fits, fli, flc, ftc, "
+                             "ftu, gbr, grib, h5, hdf, jp2, j2k, jpc, jpf, jpx, j2c, icns, "
+                             "ico, im, iim, mpg, mpeg, mpo, msp, palm, pcd, pdf, pxr, psd, "
+                             "bw, rgb, rgba, sgi, ras, tga, icb, vda, vst, webp, wmf, "
+                             "emf, xbm, xpm'."
                              )
         self.assertEqual(Post.objects.count(), posts_count)
 
