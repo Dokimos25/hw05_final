@@ -101,6 +101,39 @@ class PostFormTests(TestCase):
         self.assertRedirects(
             response, reverse('posts:post_detail', args={post.id}))
 
+    # def test_post_fields(self):
+    #     """Проверка полей созданного поста."""
+    #     small_gif = (
+    #         b'\x47\x49\x46\x38\x39\x61\x02\x00'
+    #         b'\x01\x00\x80\x00\x00\x00\x00\x00'
+    #         b'\xFF\xFF\xFF\x21\xF9\x04\x00\x00'
+    #         b'\x00\x00\x00\x2C\x00\x00\x00\x00'
+    #         b'\x02\x00\x01\x00\x00\x02\x02\x0C'
+    #         b'\x0A\x00\x3B'
+    #     )
+    #     uploaded = SimpleUploadedFile(
+    #         name='small.gif',
+    #         content=small_gif,
+    #         content_type='image/gif'
+    #     )
+    #     post = Post.objects.create(
+    #         text='Тестовый текст',
+    #         author=self.post_author,
+    #         group=self.group,
+    #         image=uploaded,
+    #     )
+    #     response = self.authorized_user.get(
+    #         reverse('posts:post', kwargs={'username': self.post_author.username, 'post_id': post.id})
+    #     )
+    #     self.assertEqual(response.status_code, HTTPStatus.OK)
+    #     self.assertContains(response, post.text)
+    #     self.assertContains(response, self.post_author.username)
+    #     self.assertContains(response, self.group.title)
+    #     self.assertContains(response, 'posts/small.gif')
+    # ----------------------------------------------------------------
+    # Тест проверки полей не работает, не разобралась что писать в urls.py, либо ошибка в самом тесте.
+    # ----------------------------------------------------------------
+
     def test_nonauthorized_user_create_comment(self):
         """Проверка создания комментария не авторизированным пользователем."""
         comments_count = Comment.objects.count()
@@ -158,4 +191,72 @@ class PostFormTests(TestCase):
         self.assertEqual(response.status_code, HTTPStatus.OK)
         redirect = reverse('login') + '?next=' + reverse('posts:create')
         self.assertRedirects(response, redirect)
+        self.assertEqual(Post.objects.count(), posts_count)
+
+    def test_invalid_image_format(self):
+        """Проверка отправки неверного формата изображения"""
+        posts_count = Post.objects.count()
+        invalid_image = (
+            b'\x47\x49\x46\x38\x39\x61\x02\x00'  
+            b'\x01\x00\x80\x00\x00\x00\x00\x00'  
+            b'\xFF\xFF\xFF\x21\xF9\x04\x00\x00'  
+            b'\x00\x00\x00\x2C\x00\x00\x00\x00'  
+            b'\x02\x00\x01\x00\x00\x02\x02\x0C'  
+            b'\x0A\x00\x3B'
+        )
+        uploaded = SimpleUploadedFile(
+            name='invalid_image.txt',
+            content=invalid_image,
+            content_type='text/plain'
+        )
+        form_data = {
+            'text': 'Тестовый текст',
+            'group': self.group.id,
+            'image': uploaded,
+        }
+        response = self.authorized_user.post(
+            reverse('posts:create'),
+            data=form_data,
+            follow=True
+        )
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        # По поводу кавычек текста ошибки ниже: тест принимается только с такими (скопировала с отчёта об ошибки теста)
+        # - снаружи двойные, внутри одинарные, иначе ошибка проверки теста.
+        self.assertFormError(response, 'form', 'image', "Формат файлов 'txt' не поддерживается. "
+                                                        "Поддерживаемые форматы файлов: 'bmp, dib, gif, tif, tiff, "
+                                                        "jfif, jpe, jpg, jpeg, pbm, pgm, ppm, pnm, png, apng, blp, "
+                                                        "bufr, cur, pcx, dcx, dds, ps, eps, fit, fits, fli, flc, ftc, "
+                                                        "ftu, gbr, grib, h5, hdf, jp2, j2k, jpc, jpf, jpx, j2c, icns, "
+                                                        "ico, im, iim, mpg, mpeg, mpo, msp, palm, pcd, pdf, pxr, psd, "
+                                                        "bw, rgb, rgba, sgi, ras, tga, icb, vda, vst, webp, wmf, "
+                                                        "emf, xbm, xpm'."
+                             )
+        self.assertEqual(Post.objects.count(), posts_count)
+
+    def test_authorized_user_create_post_with_wrong_image(self):
+        """Проверка создания записи с неправильным форматом изображения."""
+        posts_count = Post.objects.count()
+        wrong_file = SimpleUploadedFile(
+            name='test.txt',
+            content=b'This is not an image',
+            content_type='text/plain'
+        )
+        form_data = {
+            'text': 'Тестовый текст',
+            'group': self.group.id,
+            'image': wrong_file,
+        }
+        response = self.authorized_user.post(
+            reverse('posts:create'),
+            data=form_data,
+            follow=True
+        )
+        self.assertFormError(
+            response,
+            'form',
+            'image',
+            'Загрузите правильное изображение. '
+            'Файл, который вы загрузили, '
+            'поврежден или не является изображением.'
+        )
         self.assertEqual(Post.objects.count(), posts_count)

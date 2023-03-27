@@ -7,3 +7,6 @@ class CreatedModel(models.Model):
         'Дата создания',
         auto_now_add=True
     )
+
+    class Meta:
+        abstract = True
